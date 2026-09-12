@@ -1,4 +1,8 @@
-import{expect, firefox, test}from '@playwright/test';
+import{expect, firefox }from '@playwright/test';
+import LoginPage from '../pages/LoginPage';
+import HomePage from '../pages/HomePage';
+import { Credentials } from '../test-data/enums';
+import {test} from '../fixtures/fixtures.ts'
 
 // npx playwright test -g "login - textbox|click" in terminal
 
@@ -7,90 +11,58 @@ import{expect, firefox, test}from '@playwright/test';
     y =>  parameter 2 , fun containing the test steps
     Async =>  keyword to make the fun async so that we can use await keyword inside the fun
   */
-test('login - textbox|click',async({page})=>{
 
-   const url = 'https://nebula-test-lab-lv1.vercel.app/';
-   const username='trainer'
-   const password='selenium123'
-   const usernameInputFiled=page.locator('//input[@id="username-input"]')
-   const passwordInputfiled = page.locator('(//label[@class="flex flex-col gap-1"])[2]//input')
-   const loginbutton =page.getByRole('button',{name:'Login'})
-
-   await page.waitForTimeout(2000)
+/*
+3 main components in any TAF => Test Automation Framework
+POM => PAGE object model
+3.1 business logic ->منطق العمل  like: locatore and actions on this locator
+  put in => Pageclass
+3.2 Test script -> الخطوات
+  put in => Testclass
+3.3 core libraries -> non related of business (page, locator, expect, test or any fun)
+  fun => ممكن  نستخدمها في أكثر من مكان 
+  put in => utilityClass
+*/
+ let username= Credentials.VALID_USERNAME
+  let password=Credentials.VALID_PASSWORD 
+test('login - textbox|click',async({page, loginPage})=>{
+// The page fixture is (scope)=> available inside the test function as a parameter.
+// We pass the same page to the Page Class to use its Playwright functions.
+// The Page Class does not create a new page; it uses the page received from the test.
+   
    //npx playwright test -g "login - textbox|click" in terminal
-   await page.goto(url);
-   //enter username :" trainer"
-   await usernameInputFiled.fill(username);
-   //nter password :"selenium123"
-   await passwordInputfiled.fill(password);
-   //click login btn
-   await loginbutton .click()
-   // assersion
-   await expect(page.locator('[id="btn-logout"]')).toBeVisible() 
+   await loginPage.gotoLoginBage()
+   await loginPage.enterusername(username)
+   await loginPage.enterpassword(password)
+   await loginPage.clickonloginbtn()
+      await page.waitForTimeout(5000)
+
+
+});
+
+test('login - invalid',async({page , loginPage})=>{
+  //npx playwright test -g "login - invalid" in terminal
+   await loginPage.gotoLoginBage()
+   username=Credentials.INVALID_USERNAME
+   await loginPage.enterusername(username)
+   await loginPage.enterpassword(password)
+   await loginPage.clickonloginbtn()
    await page.waitForTimeout(5000)
 
 
 });
 
-test('login - invalid',async({page})=>{
-   await page.waitForTimeout(2000)
-   //npx playwright test -g "login - textbox|click" in terminal
-   await page.goto('https://nebula-test-lab-lv1.vercel.app/');
-   //enter username :" trainer"
-   await page.locator('//input[@id="username-input"]').fill('trainee');
-   //nter password :"selenium123"
-   await page.locator('(//label[@class="flex flex-col gap-1"])[2]//input').fill('selenium123');
-   //click login btn
-   await page.getByRole('button',{name:'Login'}).click()
-   // assersion
-   await expect(page.locator('[id="btn-logout"]')).toBeVisible() 
-   await page.waitForTimeout(5000)
-
-
-});
-
-test('Checkboxes & Radio',async({page})=>{
-   const url = 'https://nebula-test-lab-lv1.vercel.app/';
-   const username='trainer'
-   const password='selenium123'
-   const usernameInputFiled=page.locator('//input[@id="username-input"]')
-   const passwordInputfiled = page.locator('(//label[@class="flex flex-col gap-1"])[2]//input')
-   const loginbutton =page.getByRole('button',{name:'Login'})
-   //checkbox
-   const javacheckbox = page.locator('//*[@id="chk-java" and @type="checkbox"]')
-   const apicheckbox = page.locator('//*[@id="chk-api" and @type="checkbox"]')
-   //radio btn
-   const seniorRadiobtn=page.getByRole('radio',{name:"Senior"})
-  
-   await page.waitForTimeout(2000)
-   //npx playwright test -g "login - textbox|click" in terminal
-   await page.goto(url);
-   //enter username :" trainer"
-   await usernameInputFiled.fill(username);
-   //nter password :"selenium123"
-   await passwordInputfiled.fill(password);
-   //click login btn
-   await loginbutton .click()
-   // assersion
-   await expect(page.locator('[id="btn-logout"]')).toBeVisible() 
-
+test('Checkboxes & Radio',async({page,homepage})=>{
+ 
    // click on Checkboxes & Radio
    await page.getByRole('link', {name: /03 checkboxes/i}).click()// /03 checbokes/  are regular expression , i => type of reqular expression make statments not sensitive(just apper and lower case)
-     // check gava & api
-   await javacheckbox.uncheck()
-   await apicheckbox.check()
+   //const logipage = new LoginPage(page)
+   await homepage.checkedapi()
+   await homepage.checkedjava()
+   await homepage.checkedseniorradiobtn()
+   await homepage.uncheckedjava()
 
-   // validate that the 2 checkbox are checked
-   await expect(javacheckbox).not.toBeChecked()
-   await expect(apicheckbox).toBeChecked()
-
-    //select senior radio btn
-    await expect(seniorRadiobtn).not.toBeChecked()
-    await seniorRadiobtn.check()
-
-    // validate that the radio btn is selected
-    await expect(seniorRadiobtn).toBeChecked()
-    await page.waitForTimeout(5000)
+   await page.waitForTimeout(5000)
 
 
 
